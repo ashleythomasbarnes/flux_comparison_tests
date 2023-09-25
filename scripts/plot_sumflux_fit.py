@@ -20,7 +20,7 @@ def custom_sort(arr):
 which = 'gaussians'
 # which = 'disks' 
 
-table = QTable.read(f'table_{which}.fits')
+table = QTable.read(f'table_fit_{which}.fits')
 conf_unique = np.unique(table['conf']) 
 conf_unique =  custom_sort(conf_unique)
 
@@ -43,7 +43,7 @@ for i, conf in enumerate(conf_unique):
 	wide_arr = [''] * len(conf_arr)
 	sum_sim = conf_tab['sum_sim'].value
 	sum_obs = conf_tab['sum_obs'].value
-	rati_arr = conf_tab['sum_obs/sum_sim'].value
+	rati_arr = conf_tab['sum_fit_obs/sum_fit_sim'].value
 
 	for j, wide in enumerate(conf_tab['wide']):
 		wide_arr[j] = float(wide.replace('mrs0',''))
@@ -104,7 +104,7 @@ for i, conf in enumerate(conf_unique):
 	ax2[i].set_yscale('log')
 	ax3[i].set_yscale('log')
 	ax4[i].set_yscale('log')
-
+	
 fig1.tight_layout()
 fig2.tight_layout()
 fig3.tight_layout()
