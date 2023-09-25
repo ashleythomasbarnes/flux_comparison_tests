@@ -9,8 +9,8 @@ import os
 from scipy.ndimage import binary_dilation  
 
 
-# which = 'gaussians'
-which = 'disks'
+which = 'gaussians'
+# which = 'disks'
 
 dir_sim = f'./../data/{which}_input/'
 dir_obs = f'./../data/{which}_observed/'
