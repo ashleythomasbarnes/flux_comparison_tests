@@ -4,9 +4,11 @@ import numpy as np
 from astropy.table import QTable
 import astropy.units as u
 from astropy.io import fits
+from astropy import stats
+import os
 
-which = 'gaussians'
-# which = 'disks'
+# which = 'gaussians'
+which = 'disks'
 
 dir_sim = f'./../data/{which}_input/'
 dir_obs = f'./../data/{which}_observed/'
@@ -41,11 +43,18 @@ for i, file_sim in enumerate(files_sim):
 
 			file_obs = file_obs.replace('.Jyperpix', '.Jyperpix.fits')
 
-			hdu_sim = fits.open(file_sim)[0]
-			hdu_obs = fits.open(file_obs)[0]
+			data_sim = fits.getdata(file_sim)
+			data_obs = fits.getdata(file_obs)
 
-			sum_sim[i] = np.nansum(hdu_sim.data)*u.Jy
-			sum_obs[i] = np.nansum(hdu_obs.data)*u.Jy
+			rms_sim = 0 
+			rms_obs = stats.mad_std(data_obs, ignore_nan=True)
+			rms_obs = stats.mad_std(data_obs[data_obs<rms_obs], ignore_nan=True)
+
+			mask_high = data_obs>rms_obs*10
+			mask_low = data_obs>rms_obs*1
+
+			sum_sim[i] = np.nansum(data_sim)*u.Jy
+			sum_obs[i] = np.nansum(data_obs[(mask_high&mask_low)])*u.Jy
 
 for i in range(len(sum_sim)):
 	if sum_sim[i] == '':
