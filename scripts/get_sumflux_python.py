@@ -6,6 +6,8 @@ import astropy.units as u
 from astropy.io import fits
 from astropy import stats
 import os
+from scipy.ndimage import binary_dilation  
+
 
 # which = 'gaussians'
 which = 'disks'
@@ -21,6 +23,7 @@ files_obs.sort()
 
 sum_sim = ['']*len(files_sim)
 sum_obs = ['']*len(files_sim)
+rms_arr = ['']*len(files_sim)
 conf_arr = ['']*len(files_sim)
 wide_arr = ['']*len(files_sim)
 
@@ -49,20 +52,30 @@ for i, file_sim in enumerate(files_sim):
 			rms_sim = 0 
 			rms_obs = stats.mad_std(data_obs, ignore_nan=True)
 			rms_obs = stats.mad_std(data_obs[data_obs<rms_obs], ignore_nan=True)
+			rms_arr[i] = rms_obs*u.Jy
 
-			mask_high = data_obs>rms_obs*10
-			mask_low = data_obs>rms_obs*1
+			# mask_high = data_obs>rms_obs*5
+			# mask_low = data_obs>rms_obs*0
+
+			mask_high = data_obs == np.nanmax(data_obs)
+			mask_low = data_obs > 0
+
+			mask = binary_dilation(mask_high, mask=mask_low, iterations=-1)
+
+			rms_hdu = fits.PrimaryHDU(mask*1, fits.getheader(file_obs))
+			rms_hdu.writeto(file_obs.replace('.Jyperpix.fits', '.Jyperpix.mask.fits'), overwrite=True)
 
 			sum_sim[i] = np.nansum(data_sim)*u.Jy
-			sum_obs[i] = np.nansum(data_obs[(mask_high&mask_low)])*u.Jy
+			sum_obs[i] = np.nansum(data_obs[mask])*u.Jy
 
 for i in range(len(sum_sim)):
 	if sum_sim[i] == '':
 		sum_sim[i] = np.nan *u.Jy
 		sum_obs[i] = np.nan *u.Jy
+		rms_arr[i] = np.nan *u.Jy
 
-table = QTable([conf_arr, wide_arr, sum_sim, sum_obs], 
-		names=('conf', 'wide', 'sum_sim', 'sum_obs'))
+table = QTable([conf_arr, wide_arr, sum_sim, sum_obs, rms_arr], 
+		names=('conf', 'wide', 'sum_sim', 'sum_obs', 'rms_obs'))
 
 conf_ = table['conf'].copy()
 wide_ = table['wide'].copy()
