@@ -85,7 +85,7 @@ for i, file_sim in enumerate(files_sim):
 			mask_low = data_obs > 0
 			mask = binary_dilation(mask_high, mask=mask_low, iterations=-1)
 
-			rms_hdu = fits.PrimaryHDU(mask*np.int8(1), fits.getheader(file_obs))
+			rms_hdu = fits.PrimaryHDU(mask*np.int32(1), fits.getheader(file_obs))
 			rms_hdu.writeto(file_obs.replace('.Jyperpix.fits', '.Jyperpix.mask.fits'), overwrite=True)
 
 			sum_sim[i] = np.nansum(data_sim)*u.Jy
