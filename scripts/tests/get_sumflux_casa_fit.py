@@ -3,7 +3,6 @@ import numpy as np
 from astropy.table import QTable
 import astropy.units as u
 
-
 which = 'gaussians'
 # which = 'disks'
 

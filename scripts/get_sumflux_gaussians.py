@@ -35,7 +35,6 @@ def fit_2d_gaussian_and_get_sum(image):
 	return gaussian_sum
 
 which = 'gaussians'
-# which = 'disks'
 
 dir_sim = f'./../data/{which}_input/'
 dir_obs = f'./../data/{which}_observed/'
@@ -46,6 +45,8 @@ files_obs = glob(f'{dir_obs}*.pbcor.Jyperpix')
 files_sim.sort()
 files_obs.sort()
 
+max_sim = ['']*len(files_sim)
+max_obs = ['']*len(files_sim)
 sum_sim = ['']*len(files_sim)
 sum_obs = ['']*len(files_sim)
 sum_fit_sim = ['']*len(files_sim)
@@ -62,6 +63,9 @@ for i, file_sim in enumerate(files_sim):
 	for file_obs in files_obs:
 		if (conf in file_obs) & (wide in file_obs):
 			
+			if float(conf.replace('conf', '')) not in [1,3,5,7,9]: 
+				continue
+
 			conf_arr[i] = conf
 			wide_arr[i] = wide
 
@@ -82,11 +86,15 @@ for i, file_sim in enumerate(files_sim):
 			rms_arr[i] = rms_obs*u.Jy
 
 			mask_high = data_obs == np.nanmax(data_obs)
-			mask_low = data_obs > 0
+			# mask_low = data_obs > 0
+			mask_low = data_obs > rms_obs*3
 			mask = binary_dilation(mask_high, mask=mask_low, iterations=-1)
 
 			rms_hdu = fits.PrimaryHDU(mask*np.int32(1), fits.getheader(file_obs))
 			rms_hdu.writeto(file_obs.replace('.Jyperpix.fits', '.Jyperpix.mask.fits'), overwrite=True)
+
+			max_sim[i] = np.nanmax(data_sim)*u.Jy
+			max_obs[i] = np.nanmax(data_obs)*u.Jy
 
 			sum_sim[i] = np.nansum(data_sim)*u.Jy
 			sum_obs[i] = np.nansum(data_obs[mask])*u.Jy
@@ -101,9 +109,27 @@ for i in range(len(sum_sim)):
 		sum_sim[i] = np.nan *u.Jy
 		sum_obs[i] = np.nan *u.Jy
 		rms_arr[i] = np.nan *u.Jy
+		max_obs[i] = np.nan *u.Jy
+		max_sim[i] = np.nan *u.Jy
 
-table = QTable([conf_arr, wide_arr, sum_sim, sum_obs, rms_arr, sum_fit_sim, sum_fit_obs], 
-		names=('conf', 'wide', 'sum_sim', 'sum_obs', 'rms_obs', 'sum_fit_sim', 'sum_fit_obs'))
+table = QTable([conf_arr, 
+			wide_arr, 
+			sum_sim, 
+			sum_obs, 
+			rms_arr, 
+			max_sim,
+			max_obs,
+			sum_fit_sim, 
+			sum_fit_obs], 
+		names=('conf', 
+			'wide', 
+			'sum_sim', 
+			'sum_obs', 
+			'rms_obs', 
+			'max_sim',
+			'max_obs',
+			'sum_fit_sim', 
+			'sum_fit_obs'))
 
 conf_ = table['conf'].copy()
 wide_ = table['wide'].copy()
@@ -121,7 +147,7 @@ table['conf_'] = np.array(conf_, dtype=float)
 table['wide_'] = np.array(wide_, dtype=float)
 
 table['sum_obs/sum_sim'] = table['sum_obs']/table['sum_sim'] # add ratio
-table['sum_fit_obs/sum_fit_sim'] = table['sum_obs']/table['sum_sim'] # add ratio
+table['sum_fit_obs/sum_fit_sim'] = table['sum_fit_obs']/table['sum_fit_sim'] # add ratio
 table.sort(['conf_', 'wide_'], reverse=False) # sort
 
 ids_nan = np.where(np.isnan(table['conf_']))[0]
