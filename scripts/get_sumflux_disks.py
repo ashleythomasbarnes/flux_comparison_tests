@@ -19,7 +19,7 @@ def fit_2d_gaussian_and_get_sum(image):
 	center_x, center_y = np.array(image.shape) // 2
 	
 	# Create x, y indices grid for the sub-image
-	x, y = np.mgrid[:shape_x, :shape_y]
+	x, y = np.array(np.mgrid[:shape_x, :shape_y], dtype=np.int16)
 	
 	# Initialize the Gaussian2D model
 	g_init = models.Gaussian2D(amplitude=np.nanmax(image), x_mean=center_x, y_mean=center_y)
@@ -29,10 +29,25 @@ def fit_2d_gaussian_and_get_sum(image):
 	g = fit_g(g_init, x, y, image)
 	
 	# Calculate the sum of the fitted Gaussian
-	fitted_data = g(x, y)
+	fitted_data = np.array(g(x, y), dtype=np.float16)
 	gaussian_sum = np.sum(fitted_data)
 	
 	return gaussian_sum
+
+def remove_nan_padding(data):
+    
+    # Find valid data indices along each axis
+    valid_x = np.where(np.nansum(data, axis=0)!=0)[0]
+    valid_y = np.where(np.nansum(data, axis=1)!=0)[0]
+
+    # In the rare case there's still no valid data
+    if len(valid_x) == 0 or len(valid_y) == 0:
+        return data
+    
+    # Crop the data array
+    cropped_data = data[valid_y[0]:valid_y[-1]+1, valid_x[0]:valid_x[-1]+1]
+       
+    return cropped_data
 
 which = 'disks'
 
@@ -77,8 +92,9 @@ for i, file_sim in enumerate(files_sim):
 
 			file_obs = file_obs.replace('.Jyperpix', '.Jyperpix.fits')
 
-			data_sim = fits.getdata(file_sim)
-			data_obs = fits.getdata(file_obs)
+			data_sim = np.array(np.squeeze(fits.getdata(file_sim)), dtype=np.float16)
+			data_obs = np.array(np.squeeze(fits.getdata(file_obs)), dtype=np.float16)
+			data_obs = remove_nan_padding(data_obs)
 
 			rms_sim = 0 
 			rms_obs = stats.mad_std(data_obs, ignore_nan=True)
