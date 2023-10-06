@@ -35,19 +35,29 @@ def fit_2d_gaussian_and_get_sum(image):
 	return gaussian_sum
 
 def remove_nan_padding(data):
-    
-    # Find valid data indices along each axis
-    valid_x = np.where(np.nansum(data, axis=0)!=0)[0]
-    valid_y = np.where(np.nansum(data, axis=1)!=0)[0]
+	
+	# Find valid data indices along each axis
+	valid_x = np.where(np.nansum(data, axis=0)!=0)[0]
+	valid_y = np.where(np.nansum(data, axis=1)!=0)[0]
 
-    # In the rare case there's still no valid data
-    if len(valid_x) == 0 or len(valid_y) == 0:
-        return data
-    
-    # Crop the data array
-    cropped_data = data[valid_y[0]:valid_y[-1]+1, valid_x[0]:valid_x[-1]+1]
-       
-    return cropped_data
+	# In the rare case there's still no valid data
+	if len(valid_x) == 0 or len(valid_y) == 0:
+		return data
+	
+	# Crop the data array
+	cropped_data = data[valid_y[0]:valid_y[-1]+1, valid_x[0]:valid_x[-1]+1]
+	   
+	return cropped_data
+
+def binArray(data, axis, binstep=2, binsize=2, func=np.nansum):
+    data = np.array(data)
+    dims = np.array(data.shape)
+    argdims = np.arange(data.ndim)
+    argdims[0], argdims[axis]= argdims[axis], argdims[0]
+    data = data.transpose(argdims)
+    data = [func(np.take(data,np.arange(int(i*binstep),int(i*binstep+binsize)),0),0) for i in np.arange(dims[axis]//binstep)]
+    data = np.array(data).transpose(argdims)
+    return data
 
 which = 'gaussians'
 
@@ -85,16 +95,16 @@ for i, file_sim in enumerate(files_sim):
 			wide_arr[i] = wide
 
 			print(file_sim.split('/')[-1], file_obs.split('/')[-1])
-			
-			if not os.path.exists(file_obs.replace('.Jyperpix', '.Jyperpix.fits')):
-				print('[INFO] Importing file...') 
-				exportfits(file_obs, file_obs.replace('.Jyperpix', '.Jyperpix.fits'))
-
 			file_obs = file_obs.replace('.Jyperpix', '.Jyperpix.fits')
 
 			data_sim = np.array(np.squeeze(fits.getdata(file_sim)), dtype=np.float16)
 			data_obs = np.array(np.squeeze(fits.getdata(file_obs)), dtype=np.float16)
 			data_obs = remove_nan_padding(data_obs)
+
+			data_sim = binArray(data_sim, 0, 2)
+			data_sim = binArray(data_sim, 1, 2)
+			data_obs = binArray(data_obs, 0, 2)
+			data_obs = binArray(data_obs, 1, 2)
 
 			rms_sim = 0 
 			rms_obs = stats.mad_std(data_obs, ignore_nan=True)
