@@ -36,7 +36,7 @@ def fit_2d_gaussian_and_get_sum(image):
 	fitted_data = np.array(g(x, y), dtype=np.float32)
 	gaussian_sum = np.sum(fitted_data)
 	
-	return gaussian_sum, fitted_data
+	return (gaussian_sum*u.Jy, fitted_data)
 
 def plot_2d_gaussian(image, fitted_data, outputfile=''):
 
@@ -158,8 +158,8 @@ for i, file_sim in enumerate(files_sim):
 			sum_sim[i] = np.nansum(data_sim)*u.Jy
 			sum_obs[i] = np.nansum(data_obs[mask])*u.Jy
 
-			sum_fit_sim[i], _ = fit_2d_gaussian_and_get_sum(data_sim)*u.Jy
-			sum_fit_obs[i], fitted_data = fit_2d_gaussian_and_get_sum(data_obs)*u.Jy	
+			sum_fit_sim[i], _ = fit_2d_gaussian_and_get_sum(data_sim)
+			sum_fit_obs[i], fitted_data = fit_2d_gaussian_and_get_sum(data_obs)	
 
 			plot_2d_gaussian(data_obs, fitted_data, outputfile=file_obs.replace('.Jyperpix.fits', '.Jyperpix.png'))	
 
