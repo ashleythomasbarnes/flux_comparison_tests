@@ -105,10 +105,10 @@ for i, file_sim in enumerate(files_sim):
 
 			data_obs = remove_nan_padding(data_obs)
 
-			data_sim = binArray(data_sim, 0, 2)
-			data_sim = binArray(data_sim, 1, 2)
-			data_obs = binArray(data_obs, 0, 2)
-			data_obs = binArray(data_obs, 1, 2)
+			# data_sim = binArray(data_sim, 0, 2)
+			# data_sim = binArray(data_sim, 1, 2)
+			# data_obs = binArray(data_obs, 0, 2)
+			# data_obs = binArray(data_obs, 1, 2)
 
 			rms_sim = 0  
 			rms_obs = stats.mad_std(data_obs, ignore_nan=True)
