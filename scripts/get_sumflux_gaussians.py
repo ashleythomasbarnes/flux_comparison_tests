@@ -97,9 +97,13 @@ for i, file_sim in enumerate(files_sim):
 			print(file_sim.split('/')[-1], file_obs.split('/')[-1])
 			file_obs = file_obs.replace('.Jyperpix', '.Jyperpix.fits')
 
-			data_sim = np.array(np.squeeze(fits.getdata(file_sim)), dtype=np.float16)
-			data_obs = np.array(np.squeeze(fits.getdata(file_obs)), dtype=np.float16)
-			data_obs = remove_nan_padding(data_obs)
+			# data_sim = np.array(np.squeeze(fits.getdata(file_sim)), dtype=np.float16)
+			# data_obs = np.array(np.squeeze(fits.getdata(file_obs)), dtype=np.float16)
+
+			data_sim = np.squeeze(fits.getdata(file_sim))
+			data_obs = np.squeeze(fits.getdata(file_obs))
+
+			# data_obs = remove_nan_padding(data_obs)
 
 			# data_sim = binArray(data_sim, 0, 2)
 			# data_sim = binArray(data_sim, 1, 2)
