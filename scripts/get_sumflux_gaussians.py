@@ -97,8 +97,8 @@ for i, file_sim in enumerate(files_sim):
 			print(file_sim.split('/')[-1], file_obs.split('/')[-1])
 			file_obs = file_obs.replace('.Jyperpix', '.Jyperpix.fits')
 
-			data_sim = np.array(np.squeeze(fits.getdata(file_sim)), dtype=np.float16)
-			data_obs = np.array(np.squeeze(fits.getdata(file_obs)), dtype=np.float16)
+			data_sim = np.array(np.squeeze(fits.getdata(file_sim)), dtype=np.float32)
+			data_obs = np.array(np.squeeze(fits.getdata(file_obs)), dtype=np.float32)
 
 			# data_sim = np.squeeze(fits.getdata(file_sim))
 			# data_obs = np.squeeze(fits.getdata(file_obs))
@@ -110,7 +110,7 @@ for i, file_sim in enumerate(files_sim):
 			data_obs = binArray(data_obs, 0, 2)
 			data_obs = binArray(data_obs, 1, 2)
 
-			rms_sim = 0 
+			rms_sim = 0  
 			rms_obs = stats.mad_std(data_obs, ignore_nan=True)
 			rms_obs = stats.mad_std(data_obs[data_obs<rms_obs], ignore_nan=True)
 			rms_arr[i] = rms_obs*u.Jy
