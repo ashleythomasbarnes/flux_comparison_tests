@@ -161,7 +161,7 @@ for i, file_sim in enumerate(files_sim):
 			sum_fit_sim[i], _ = fit_2d_gaussian_and_get_sum(data_sim)*u.Jy
 			sum_fit_obs[i], fitted_data = fit_2d_gaussian_and_get_sum(data_obs)*u.Jy	
 
-			plot_2d_gaussian(image, fitted_data, outputfile=file_obs.replace('.Jyperpix.fits', '.Jyperpix.png'))	
+			plot_2d_gaussian(data_obs, fitted_data, outputfile=file_obs.replace('.Jyperpix.fits', '.Jyperpix.png'))	
 
 for i in range(len(sum_sim)):
 	if sum_sim[i] == '':
