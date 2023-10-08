@@ -19,7 +19,7 @@ def fit_2d_gaussian_and_get_sum(image):
 	center_x, center_y = np.array(image.shape) // 2
 	
 	# Create x, y indices grid for the sub-image
-	x, y = np.array(np.mgrid[:shape_x, :shape_y], dtype=np.int16)
+	x, y = np.array(np.mgrid[:shape_x, :shape_y], dtype=np.int32)
 	
 	# Initialize the Gaussian2D model
 	g_init = models.Gaussian2D(amplitude=np.nanmax(image), x_mean=center_x, y_mean=center_y)
@@ -29,7 +29,7 @@ def fit_2d_gaussian_and_get_sum(image):
 	g = fit_g(g_init, x, y, image)
 	
 	# Calculate the sum of the fitted Gaussian
-	fitted_data = np.array(g(x, y), dtype=np.float16)
+	fitted_data = np.array(g(x, y), dtype=np.float32)
 	gaussian_sum = np.sum(fitted_data)
 	
 	return gaussian_sum
@@ -88,7 +88,7 @@ for i, file_sim in enumerate(files_sim):
 	for file_obs in files_obs:
 		if (conf in file_obs) & (wide in file_obs):
 			
-			if float(conf.replace('conf', '')) not in [4,5]: 
+			if float(conf.replace('conf', '')) not in [4]: 
 				continue
 
 			conf_arr[i] = conf
