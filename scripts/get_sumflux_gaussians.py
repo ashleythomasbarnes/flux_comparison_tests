@@ -88,7 +88,7 @@ for i, file_sim in enumerate(files_sim):
 	for file_obs in files_obs:
 		if (conf in file_obs) & (wide in file_obs):
 			
-			if float(conf.replace('conf', '')) not in [4]: 
+			if float(conf.replace('conf', '')) not in [5,6]: 
 				continue
 
 			conf_arr[i] = conf
