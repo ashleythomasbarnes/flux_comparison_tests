@@ -8,6 +8,10 @@ from astropy import stats
 import os
 from scipy.ndimage import binary_dilation  
 from astropy.modeling import models, fitting
+import numpy as np
+from astropy.modeling import models, fitting
+import matplotlib.pyplot as plt
+from matplotlib.colors import LogNorm
 
 def fit_2d_gaussian_and_get_sum(image):
 
@@ -39,10 +43,10 @@ def plot_2d_gaussian(image, fitted_data, outputfile=''):
 	# Plotting
     fig, ax = plt.subplots(1, 2, figsize=(12, 6))
     
-    ax[0].imshow(image, origin='lower', cmap='viridis', norm=LogNorm())
+    ax[0].imshow(image, origin='lower', cmap='inferno')
     ax[0].set_title('Original Image')
     
-    ax[1].imshow(fitted_data, origin='lower', cmap='viridis', norm=LogNorm())
+    ax[1].imshow(fitted_data, origin='lower', cmap='inferno')
     ax[1].set_title('Fitted Gaussian')
     
     # You might want to overlay contours of the fitted Gaussian over the original image
