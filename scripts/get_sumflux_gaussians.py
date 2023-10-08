@@ -40,6 +40,16 @@ def fit_2d_gaussian_and_get_sum(image):
 
 def plot_2d_gaussian(image, fitted_data, outputfile=''):
 
+	image = np.squeeze(image)
+	image[np.isnan(image)] = 0
+
+	# Get the center of the image
+	shape_x, shape_y = image.shape
+	center_x, center_y = np.array(image.shape) // 2
+	
+	# Create x, y indices grid for the sub-image
+	x, y = np.array(np.mgrid[:shape_x, :shape_y], dtype=np.int32)
+
 	# Plotting
     fig, ax = plt.subplots(1, 2, figsize=(12, 6))
     
