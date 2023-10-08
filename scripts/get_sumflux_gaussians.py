@@ -38,7 +38,7 @@ def fit_2d_gaussian_and_get_sum(image):
     
     return (gaussian_sum*u.Jy, fitted_data)
 
-def plot_2d_gaussian(image, fitted_data, outputfile=''):
+def plot_2d_gaussian(image, fitted_data, mask, conf, wide, outputfile=''):
 
     image = np.squeeze(image)
     image[np.isnan(image)] = 0
@@ -54,21 +54,31 @@ def plot_2d_gaussian(image, fitted_data, outputfile=''):
     fig, ax = plt.subplots(1, 2, figsize=(12, 6))
     
     ax[0].imshow(image, origin='lower', cmap='inferno')
-    ax[0].set_title('Original Image')
-    
     ax[1].imshow(fitted_data, origin='lower', cmap='inferno')
-    ax[1].set_title('Fitted Gaussian')
     
     # You might want to overlay contours of the fitted Gaussian over the original image
     # for a direct comparison. This would look something like this:
-    ax[0].contour(x, y, fitted_data, colors='red', levels=np.linspace(fitted_data.min(), fitted_data.max(), 10), alpha=0.6)
-    
+    ax[0].contour(y, x, fitted_data, colors='C0', levels=[0.5*np.nanmax(fitted_data)], alpha=0.6)
+    ax[0].contour(y, x, mask, colors='C1', levels=[0], alpha=0.6)
+
+    ax[1].contour(y, x, fitted_data, colors='C0', levels=[0.5*np.nanmax(fitted_data)], alpha=0.6)
+    ax[1].contour(y, x, mask, colors='C1', levels=[0], alpha=0.6)
+    ax[1].plot([0,0],[0,0], c='C0', label='fit FHWM')
+    ax[1].plot([0,0],[0,0], c='C1', label='thresh mask')
+
+    ax[0].text(0.5, 0.9, 'Original Image', color='white', fontweight='normal', size=12, transform=ax[0].transAxes, ha='center')
+    ax[1].text(0.5, 0.9, 'Fitted Gaussian', color='white', fontweight='normal', size=12, transform=ax[1].transAxes, ha='center')
+    ax[0].text(0.5, 0.95, '%s %s' %(conf, wide), color='white', fontweight='heavy', size=15, transform=ax[0].transAxes, ha='center')
+    ax[1].text(0.5, 0.95, '%s %s' %(conf, wide), color='white', fontweight='heavy', size=15, transform=ax[1].transAxes, ha='center')
+
+    ax[1].legend(loc='upper left')
+
     for a in ax:
         a.set_xlabel('x')
         a.set_ylabel('y')
     
     plt.tight_layout()
-    plt.savefig(f'scatter_{which}_ratio_log.png', dpi=300, bbox_inches='tight')
+    plt.savefig(outputfile, dpi=300, bbox_inches='tight')
 
     return()
 
@@ -171,7 +181,8 @@ for i, file_sim in enumerate(files_sim):
             sum_fit_sim[i], _ = fit_2d_gaussian_and_get_sum(data_sim)
             sum_fit_obs[i], fitted_data = fit_2d_gaussian_and_get_sum(data_obs) 
 
-            plot_2d_gaussian(data_obs, fitted_data, outputfile=file_obs.replace('.Jyperpix.fits', '.Jyperpix.png')) 
+            plot_2d_gaussian(data_obs, fitted_data, mask*np.int32(1), conf, wide,
+                             outputfile=file_obs.replace('.Jyperpix.fits', '.Jyperpix.png')) 
 
 for i in range(len(sum_sim)):
     if sum_sim[i] == '':
