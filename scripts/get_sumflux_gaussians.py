@@ -32,7 +32,32 @@ def fit_2d_gaussian_and_get_sum(image):
 	fitted_data = np.array(g(x, y), dtype=np.float32)
 	gaussian_sum = np.sum(fitted_data)
 	
-	return gaussian_sum
+	return gaussian_sum, fitted_data
+
+def plot_2d_gaussian(image, fitted_data, outputfile=''):
+
+	# Plotting
+    fig, ax = plt.subplots(1, 2, figsize=(12, 6))
+    
+    ax[0].imshow(image, origin='lower', cmap='viridis', norm=LogNorm())
+    ax[0].set_title('Original Image')
+    
+    ax[1].imshow(fitted_data, origin='lower', cmap='viridis', norm=LogNorm())
+    ax[1].set_title('Fitted Gaussian')
+    
+    # You might want to overlay contours of the fitted Gaussian over the original image
+    # for a direct comparison. This would look something like this:
+    ax[0].contour(x, y, fitted_data, colors='red', levels=np.linspace(fitted_data.min(), fitted_data.max(), 10), alpha=0.6)
+    
+    for a in ax:
+        a.set_xlabel('x')
+        a.set_ylabel('y')
+    
+    plt.tight_layout()
+    plt.savefig(f'scatter_{which}_ratio_log.png', dpi=300, bbox_inches='tight')
+
+    return()
+
 
 def remove_nan_padding(data):
 	
@@ -129,8 +154,10 @@ for i, file_sim in enumerate(files_sim):
 			sum_sim[i] = np.nansum(data_sim)*u.Jy
 			sum_obs[i] = np.nansum(data_obs[mask])*u.Jy
 
-			sum_fit_sim[i] = fit_2d_gaussian_and_get_sum(data_sim)*u.Jy
-			sum_fit_obs[i] = fit_2d_gaussian_and_get_sum(data_obs)*u.Jy		
+			sum_fit_sim[i], _ = fit_2d_gaussian_and_get_sum(data_sim)*u.Jy
+			sum_fit_obs[i], fitted_data = fit_2d_gaussian_and_get_sum(data_obs)*u.Jy	
+
+			plot_2d_gaussian(image, fitted_data, outputfile=file_obs.replace('.Jyperpix.fits', '.Jyperpix.png'))	
 
 for i in range(len(sum_sim)):
 	if sum_sim[i] == '':
