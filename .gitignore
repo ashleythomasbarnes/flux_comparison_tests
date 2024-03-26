@@ -5,3 +5,5 @@ data
 scripts/.DS_Store
 .DS_Store
 *.log
+/scratch
+/scripts/tests

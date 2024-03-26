@@ -137,7 +137,7 @@ for i, file_sim in enumerate(files_sim):
     for file_obs in files_obs:
         if (conf in file_obs) & (wide in file_obs):
             
-            if float(conf.replace('conf', '')) not in [5]: 
+            if float(conf.replace('conf', '')) not in [8]: 
                 continue
 
             conf_arr[i] = conf
@@ -149,7 +149,15 @@ for i, file_sim in enumerate(files_sim):
             data_sim = np.array(np.squeeze(fits.getdata(file_sim)), dtype=np.float32)
             data_obs = np.array(np.squeeze(fits.getdata(file_obs)), dtype=np.float32)
 
+            # data_sim = np.squeeze(fits.getdata(file_sim))
+            # data_obs = np.squeeze(fits.getdata(file_obs))
+
             data_obs = remove_nan_padding(data_obs)
+
+            # data_sim = binArray(data_sim, 0, 2)
+            # data_sim = binArray(data_sim, 1, 2)
+            # data_obs = binArray(data_obs, 0, 2)
+            # data_obs = binArray(data_obs, 1, 2)
 
             rms_sim = 0  
             rms_obs = stats.mad_std(data_obs, ignore_nan=True)
