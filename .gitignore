@@ -1,9 +1,12 @@
-
 *.fits
-data
 
 scripts/.DS_Store
 .DS_Store
 *.log
 /scratch
 /scripts/tests
+/data/disks_input
+/data/gaussians_input
+/data/tables_gaussians_v4_backup
+/data/tables_gaussians_v4_backup23feb
+/data/tables_gaussians_v2
